@@ -1,0 +1,20 @@
+# permissions for end users to view prometheusrules.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheusrule-viewer-role
+rules:
+- apiGroups:
+  - prometheus.monitoring.io
+  resources:
+  - prometheusrules
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - prometheus.monitoring.io
+  resources:
+  - prometheusrules/status
+  verbs:
+  - get

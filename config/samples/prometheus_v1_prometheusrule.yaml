@@ -1,0 +1,7 @@
+apiVersion: prometheus.monitoring.io/v1
+kind: PrometheusRule
+metadata:
+  name: prometheusrule-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -1,0 +1,7 @@
+domain: monitoring.io
+repo: github.com/linclaus/prometheus-operator
+resources:
+- group: prometheus
+  kind: PrometheusRule
+  version: v1
+version: "2"
