@@ -25,7 +25,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	prometheusv1 "github.com/linclaus/prometheus-operator/api/v1"
+	prometheus "github.com/linclaus/prometheus-operator/pkg/prometheus"
 )
+
+var LOG_FINALIZER = "prometheusRule"
 
 // PrometheusRuleReconciler reconciles a PrometheusRule object
 type PrometheusRuleReconciler struct {
@@ -38,12 +41,84 @@ type PrometheusRuleReconciler struct {
 // +kubebuilder:rbac:groups=prometheus.monitoring.io,resources=prometheusrules/status,verbs=get;update;patch
 
 func (r *PrometheusRuleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("prometheusrule", req.NamespacedName)
+	ctx := context.Background()
+	_ = r.Log.WithValues("PrometheusRule", req.NamespacedName)
 
-	// your logic here
+	pr := &prometheusv1.PrometheusRule{}
+	err := r.Get(ctx, req.NamespacedName, pr)
+	if err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// PrometheusRule deleted
+	if !pr.DeletionTimestamp.IsZero() {
+		r.Log.V(1).Info("Deleting PrometheusRule")
+
+		//delete rule
+		err = prometheus.DeleteRule(*pr)
+		if err != nil {
+			r.updateStatus(pr, "Failed")
+			return ctrl.Result{}, nil
+		}
+
+		//remove finalizer flag
+		pr.Finalizers = removeString(pr.Finalizers, LOG_FINALIZER)
+		if err = r.Update(ctx, pr); err != nil {
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		}
+		r.Log.V(1).Info("PrometheusRule deleted")
+		return ctrl.Result{}, nil
+	}
+
+	// Add finalizer
+	if !containsString(pr.Finalizers, LOG_FINALIZER) {
+		pr.Finalizers = append(pr.Finalizers, LOG_FINALIZER)
+		if err = r.Update(ctx, pr); err != nil {
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		}
+	}
+
+	// PrometheusRule update
+	r.Log.V(1).Info("Updating PrometheusRule")
+	err = prometheus.GenerateRuleAndWriteFile(*pr)
+	if err != nil {
+		r.updateStatus(pr, "Failed")
+		return ctrl.Result{}, nil
+	}
+	r.Log.V(1).Info("PrometheusRule updated")
+	r.updateStatus(pr, "Successful")
 
 	return ctrl.Result{}, nil
+}
+
+func (r *PrometheusRuleReconciler) updateStatus(pr *prometheusv1.PrometheusRule, status string) {
+	pr.Status.Status = status
+	if status == "Failed" {
+		rty := pr.Status.RetryTimes
+		if rty < 100 {
+			pr.Status.RetryTimes = rty + 1
+		}
+	}
+	r.Status().Update(context.Background(), pr)
+}
+
+func removeString(slice []string, s string) (result []string) {
+	for _, item := range slice {
+		if item == s {
+			continue
+		}
+		result = append(result, item)
+	}
+	return
+}
+
+func containsString(slice []string, s string) bool {
+	for _, item := range slice {
+		if item == s {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *PrometheusRuleReconciler) SetupWithManager(mgr ctrl.Manager) error {

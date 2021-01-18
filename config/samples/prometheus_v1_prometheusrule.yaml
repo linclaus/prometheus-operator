@@ -4,4 +4,12 @@ metadata:
   name: prometheusrule-sample
 spec:
   # Add fields here
-  foo: bar
+  alert: alert-test
+  expr: vector(1)
+  for: 5m
+  labels: 
+    key1: value1
+    key2: value2
+  annotations: 
+    key1: value1
+    key2: value2
