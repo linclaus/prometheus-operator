@@ -7,7 +7,7 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
-ENV GOPROXY=https://goproxy.cn,https://goproxy.gridsum.com,direct
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 
 # Copy the go source
@@ -23,6 +23,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
+COPY config.yaml config.yaml
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]
