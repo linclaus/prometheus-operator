@@ -1,2 +1,2 @@
-ruleFilePath: ./
+ruleFilePath: /etc/prometheus/rules/
 ruleFileSuffix: -rule1.yaml
