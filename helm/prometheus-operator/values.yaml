@@ -12,6 +12,12 @@ image:
 
 metricsAddr: 80
 
+env:
+  - name: RULEFILEPATH
+    value: /etc/prometheus/rules/
+  - name: RULEFILESUFFIX
+    value: -rule.yaml
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

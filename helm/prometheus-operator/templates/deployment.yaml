@@ -37,14 +37,10 @@ spec:
             - name: http
               containerPort: {{ .Values.metricsAddr }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          args:
+          - --metrics-addr=:{{ .Values.metricsAddr }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}          
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
