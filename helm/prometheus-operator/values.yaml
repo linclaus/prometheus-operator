@@ -8,7 +8,7 @@ image:
   repository: linclaus/prometheus-operator
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "08df0c3"
+  tag: "latest"
 
 metricsAddr: 80
 
