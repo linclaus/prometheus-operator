@@ -18,7 +18,13 @@ func GenerateRuleAndWriteFile(r prometheusv1.PrometheusRule) error {
 		Annotations: r.Spec.Annotations,
 		Labels:      r.Spec.Labels,
 	}
-	return addRulesToGroups(r.Spec.Alert+viper.GetString("ruleFileSuffix"), rule)
+	var fileName string
+	if "" == r.Spec.Group {
+		fileName = "default" + viper.GetString("ruleFileSuffix")
+	} else {
+		fileName = r.Spec.Group + viper.GetString("ruleFileSuffix")
+	}
+	return addRulesToGroups(fileName, rule)
 }
 
 func DeleteRule(r prometheusv1.PrometheusRule) error {

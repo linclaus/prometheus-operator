@@ -27,6 +27,7 @@ import (
 type PrometheusRuleSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Group       string            `json:"group,omitempty"`
 	Alert       string            `json:"alert,omitempty"`
 	Expr        string            `json:"expr"`
 	For         string            `json:"for,omitempty"`
