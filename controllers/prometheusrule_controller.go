@@ -52,21 +52,16 @@ func (r *PrometheusRuleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 
 	// PrometheusRule deleted
 	if !pr.DeletionTimestamp.IsZero() {
-		r.Log.V(1).Info("Deleting PrometheusRule")
+		r.Log.V(1).Info("Deleting PrometheusRule", "name", pr.Name)
 
 		//delete rule
-		err = prometheus.DeleteRule(*pr)
-		if err != nil {
-			r.updateStatus(pr, "Failed")
-			return ctrl.Result{}, nil
-		}
-
+		prometheus.DeleteRule(*pr)
 		//remove finalizer flag
 		pr.Finalizers = removeString(pr.Finalizers, LOG_FINALIZER)
 		if err = r.Update(ctx, pr); err != nil {
 			return ctrl.Result{}, client.IgnoreNotFound(err)
 		}
-		r.Log.V(1).Info("PrometheusRule deleted")
+		r.Log.V(1).Info("PrometheusRule deleted", "name", pr.Name)
 		return ctrl.Result{}, nil
 	}
 
@@ -85,7 +80,7 @@ func (r *PrometheusRuleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		r.updateStatus(pr, "Failed")
 		return ctrl.Result{}, nil
 	}
-	r.Log.V(1).Info("PrometheusRule updated")
+	r.Log.V(1).Info("PrometheusRule updated", "name", pr.Name)
 	r.updateStatus(pr, "Successful")
 
 	return ctrl.Result{}, nil

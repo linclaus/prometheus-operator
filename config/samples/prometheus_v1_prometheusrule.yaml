@@ -4,7 +4,6 @@ metadata:
   name: prometheusrule-sample
 spec:
   # Add fields here
-  group: test
   alert: alert-test
   expr: vector(1)
   for: 5m
