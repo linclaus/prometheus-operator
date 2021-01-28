@@ -26,7 +26,7 @@ func DeleteRule(r prometheusv1.PrometheusRule) error {
 	return deleteRuleFile(r.Spec.Alert + viper.GetString("ruleFileSuffix"))
 }
 func deleteRuleFile(fileName string) error {
-	return os.Remove(fileName)
+	return os.Remove(viper.GetString("ruleFilePath") + fileName)
 }
 
 func addRulesToGroups(fileName string, rule rulefmt.Rule) error {

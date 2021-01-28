@@ -55,7 +55,11 @@ func (r *PrometheusRuleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		r.Log.V(1).Info("Deleting PrometheusRule", "name", pr.Name)
 
 		//delete rule
-		prometheus.DeleteRule(*pr)
+		err := prometheus.DeleteRule(*pr)
+		if err != nil {
+			r.updateStatus(pr, "Failed")
+			return ctrl.Result{}, nil
+		}
 		//remove finalizer flag
 		pr.Finalizers = removeString(pr.Finalizers, LOG_FINALIZER)
 		if err = r.Update(ctx, pr); err != nil {
