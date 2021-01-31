@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -56,7 +57,9 @@ func (r *PrometheusRuleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 
 		//delete rule
 		err := prometheus.DeleteRule(*pr)
+		prometheus.ReloadPrometheus()
 		if err != nil {
+			log.Println(err.Error())
 			r.updateStatus(pr, "Failed")
 			return ctrl.Result{}, nil
 		}
@@ -80,7 +83,9 @@ func (r *PrometheusRuleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	// PrometheusRule update
 	r.Log.V(1).Info("Updating PrometheusRule")
 	err = prometheus.GenerateRuleAndWriteFile(*pr)
+	prometheus.ReloadPrometheus()
 	if err != nil {
+		log.Println(err.Error())
 		r.updateStatus(pr, "Failed")
 		return ctrl.Result{}, nil
 	}

@@ -3,6 +3,7 @@ package prometheus
 import (
 	"bufio"
 	"fmt"
+	"net/http"
 	"os"
 
 	prometheusv1 "github.com/linclaus/prometheus-operator/api/v1"
@@ -25,6 +26,11 @@ func GenerateRuleAndWriteFile(r prometheusv1.PrometheusRule) error {
 func DeleteRule(r prometheusv1.PrometheusRule) error {
 	return deleteRuleFile(r.Spec.Alert + viper.GetString("ruleFileSuffix"))
 }
+
+func ReloadPrometheus() {
+	http.Post(viper.GetString("PROMETHEUS_HOST")+"/-/reload", "application/json", nil)
+}
+
 func deleteRuleFile(fileName string) error {
 	return os.Remove(viper.GetString("ruleFilePath") + fileName)
 }

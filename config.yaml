@@ -1,2 +1,3 @@
 ruleFilePath: /etc/prometheus/rules/
 ruleFileSuffix: -rule.yaml
+PROMETHEUS_HOST: http://prometheus:9090
