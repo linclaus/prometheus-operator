@@ -1,0 +1,15 @@
+apiVersion: prometheus.monitoring.io/v1
+kind: PrometheusRule
+metadata:
+  name: prometheusrule-sample
+spec:
+  # Add fields here
+  alert: alert-test
+  expr: vector(1)
+  for: 5m
+  labels: 
+    key1: value1
+    key2: value2
+  annotations: 
+    key1: value1
+    key2: value2
